@@ -66,6 +66,7 @@ void DelExceptInfo(ExceptInfo** Ex) {
 
 
 bool FindExType(ExceptInfo* Ex, char* newEx) {//в переменную level записывается уровень найденного  выражения
+    if (Ex == NULL) false;
     for (int i = 0; i < Ex->Size; ++i) {
         if (strcmp(Ex->ExData[i], newEx) == 0) {
             return true;
@@ -123,24 +124,30 @@ void PrintSameLevel(int level, ExceptInfo* ExPrint) {
 }
 void Terminate(ExceptInfo* ExThrow, ExceptInfo* StrExThrow, ExceptInfo* ExCatch, ExceptInfo* ExPrint) {
     int level;
+    if (ExCatch == NULL) {
+        printf("All exceptions not processed because there are Catch block\n");
+        return;
+    }
     if (ExCatch->IsAll) {
         printf("all exceptions processed by ... option\n");
     }
-
-    for (int i = 0; i < ExThrow->Size; ++i) {
-        bool isFind = FindExType(ExCatch, ExThrow->ExData[i]);
-        //isFind += ExCatch->IsAll;
-        if (isFind == false && !ExCatch->IsAll) {
-            printf("    Terminate   \n");
-            printf("Exception %s type not processed\n", ExThrow->ExData[i]);
-            return;
-        }
-        else if (isFind == true){
-            level = FindLevel(ExCatch, ExThrow->ExData[i]);
-            printf("Exception %s type processed\n", ExThrow->ExData[i]);
-            PrintSameLevel(level, ExPrint);
+    if (ExThrow != NULL) {
+        for (int i = 0; i < ExThrow->Size; ++i) {
+            bool isFind = FindExType(ExCatch, ExThrow->ExData[i]);
+            //isFind += ExCatch->IsAll;
+            if (isFind == false && !ExCatch->IsAll) {
+                printf("    Terminate   \n");
+                printf("Exception %s type not processed\n", ExThrow->ExData[i]);
+                return;
+            }
+            else if (isFind == true){
+                level = FindLevel(ExCatch, ExThrow->ExData[i]);
+                printf("Exception %s type processed\n", ExThrow->ExData[i]);
+                PrintSameLevel(level, ExPrint);
+            }
         }
     }
+    
     if (StrExThrow != NULL) {
         if (StrExThrow->Size != 0 && FindExType(ExCatch, "const char*") == false && !ExCatch->IsAll) {
             printf("    Terminate   \n");
